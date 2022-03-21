@@ -1,4 +1,4 @@
-package ch.alptbz.mqttdemo;
+package ch.alptbz.mqtttelegramdemo;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;

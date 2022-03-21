@@ -1,4 +1,4 @@
-package ch.alptbz.mqttdemo;
+package ch.alptbz.mqtttelegramdemo;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -6,7 +6,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

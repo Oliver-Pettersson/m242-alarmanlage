@@ -1,8 +1,5 @@
-package ch.alptbz.mqttdemo;
+package ch.alptbz.mqtttelegramdemo;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.Update;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 

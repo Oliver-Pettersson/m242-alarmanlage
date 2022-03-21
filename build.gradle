@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'ch.alptbz.mqttdemo'
+group 'ch.alptbz.mqtttelegramdemo'
 version '1.0-SNAPSHOT'
 
 repositories {
