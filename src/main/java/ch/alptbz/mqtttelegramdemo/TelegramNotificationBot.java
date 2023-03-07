@@ -5,18 +5,21 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TelegramNotificationBot
 extends Thread implements UpdatesListener {
 
     private final TelegramBot bot;
-    private final ArrayList<Long> users = new ArrayList<>();
+    private final List<Long> users = Collections.synchronizedList(new ArrayList<Long>());
 
     public TelegramNotificationBot(String botToken) {
         bot = new TelegramBot(botToken);
 
         bot.setUpdatesListener(this);
+
+
     }
 
     public void sendTemperatureNotificationToAllUsers(double temperature) {
@@ -29,7 +32,9 @@ extends Thread implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         for(Update update: updates) {
+            if(update.message() == null) continue;
             String message = update.message().text();
+            if(message == null) continue;
             if(message.startsWith("/help")) {
                 SendMessage reply = new SendMessage(update.message().chat().id(), "Use /subscribe to subscribe to temperature updates. Use /unsubscribe to leave");
                 bot.execute(reply);

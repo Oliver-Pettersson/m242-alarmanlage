@@ -44,10 +44,10 @@ public class Main {
 
         logger.info("TelegramBot started");
 
-        Mqtt mqttClient = new Mqtt(config.getProperty("mqtt-url"), "runner-1");
+        Mqtt mqttClient = new Mqtt(config.getProperty("mqtt-url"), "runner-12");
         try {
             mqttClient.start();
-            mqttClient.subscribe("m5core2/#");
+            mqttClient.subscribe("alp/m5core2/#");
             mqttClient.publish("M5Stack", "test");
         } catch (MqttException e) {
             e.printStackTrace();
@@ -56,10 +56,10 @@ public class Main {
         mqttClient.addHandler(new BiConsumer<String, MqttMessage>() {
             @Override
             public void accept(String s, MqttMessage mqttMessage) {
-                if(s.equals("m5core2/temp")) {
+                if(s.equals("alp/m5core2/temp")) {
                     temperature = Double.parseDouble(mqttMessage.toString());
                 }
-                if(s.equals("m5core2/hum")) {
+                if(s.equals("alp/m5core2/hum")) {
                     humidity = Double.parseDouble(mqttMessage.toString());
                 }
             }
