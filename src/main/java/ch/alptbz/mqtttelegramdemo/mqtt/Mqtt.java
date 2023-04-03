@@ -1,10 +1,11 @@
-package ch.alptbz.mqtttelegramdemo;
+package ch.alptbz.mqtttelegramdemo.mqtt;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,7 @@ public class Mqtt implements MqttCallback {
     private Thread controlThread;
     private volatile boolean isRunning;
 
-    private ArrayList<BiConsumer<String, MqttMessage>> consumers = new ArrayList<>();
+    private ArrayList<MqttConsumerInterface> consumers = new ArrayList<>();
 
 
     public void sendMessage(String topic, String content) throws MqttException {
@@ -49,8 +50,12 @@ public class Mqtt implements MqttCallback {
         client.subscribe(topic);
     }
 
-    public void addHandler(BiConsumer<String, MqttMessage> consumer) {
-        consumers.add(consumer);
+    public void addHandler(MqttConsumerInterface handler) throws MqttException {
+        consumers.add(handler);
+        String[] topics = handler.subscribesTopics();
+        for(String topic: topics) {
+            client.subscribe(topic);
+        }
     }
 
     public void start() throws MqttException {
@@ -101,8 +106,10 @@ public class Mqtt implements MqttCallback {
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         logger.log(Level.FINE, "Receveid: " + topic + " " + message.toString());
-        for(BiConsumer<String, MqttMessage> consumer: consumers) {
-            consumer.accept(topic, message);
+        for(MqttConsumerInterface consumer: consumers) {
+            if(consumer.acceptsTopic(topic)) {
+                consumer.handleTopic(topic, message.toString(), message);
+            }
         }
     }
 
@@ -114,4 +121,6 @@ public class Mqtt implements MqttCallback {
     public void publish(String topic, String message) throws MqttException {
         client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
     }
+
+
 }

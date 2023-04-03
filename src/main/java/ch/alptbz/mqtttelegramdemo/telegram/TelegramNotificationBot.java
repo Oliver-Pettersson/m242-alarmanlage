@@ -1,18 +1,23 @@
-package ch.alptbz.mqtttelegramdemo;
+package ch.alptbz.mqtttelegramdemo.telegram;
 
+import ch.alptbz.mqtttelegramdemo.telegram.TelegramConsumerInterface;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class TelegramNotificationBot
-extends Thread implements UpdatesListener {
+extends Thread implements UpdatesListener, TelegramSenderInterface {
 
     private final TelegramBot bot;
     private final List<Long> users = Collections.synchronizedList(new ArrayList<Long>());
+
+    private final ArrayList<TelegramConsumerInterface> consumers = new ArrayList<>();
 
     public TelegramNotificationBot(String botToken) {
         bot = new TelegramBot(botToken);
@@ -22,11 +27,8 @@ extends Thread implements UpdatesListener {
 
     }
 
-    public void sendTemperatureNotificationToAllUsers(double temperature) {
-        for(Long user: users) {
-            SendMessage reply = new SendMessage(user, "The temperature changed to %.2f °C".formatted(temperature));
-            bot.execute(reply);
-        }
+    public void addHandler(TelegramConsumerInterface consumer) {
+        consumers.add(consumer);
     }
 
     @Override
@@ -39,7 +41,7 @@ extends Thread implements UpdatesListener {
                 SendMessage reply = new SendMessage(update.message().chat().id(), "Use /subscribe to subscribe to temperature updates. Use /unsubscribe to leave");
                 bot.execute(reply);
             }
-            if(message.startsWith("/subscribe")) {
+            else if(message.startsWith("/subscribe")) {
                 if(!users.contains(update.message().chat().id())) {
                     users.add(update.message().chat().id());
                     SendMessage reply = new SendMessage(update.message().chat().id(),
@@ -51,7 +53,7 @@ extends Thread implements UpdatesListener {
                     bot.execute(reply);
                 }
             }
-            if(message.startsWith("/unsubscribe")) {
+            else if(message.startsWith("/unsubscribe")) {
                 if(users.contains(update.message().chat().id())) {
                     users.remove(update.message().chat().id());
                     SendMessage reply = new SendMessage(update.message().chat().id(),
@@ -63,8 +65,33 @@ extends Thread implements UpdatesListener {
                     bot.execute(reply);
                 }
             }
+            for(TelegramConsumerInterface consumer: consumers) {
+                if(consumer.acceptsCommand(message)) {
+                    consumer.handleCommand(update, message);
+                }
+            }
         }
 
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
+    }
+
+    @Override
+    public void sendMessage(Long telegramUserId, String message) {
+        SendMessage newMessage = new SendMessage(telegramUserId, message);
+        bot.execute(newMessage);
+    }
+
+    @Override
+    public void sendToAllSubscribers(String message) {
+        for(Long user: users) {
+            SendMessage reply = new SendMessage(user, message);
+            bot.execute(reply);
+        }
+    }
+
+    @Override
+    public void sendReply(Update update, String message) {
+        SendMessage reply = new SendMessage(update.message().chat().id(), message);
+        bot.execute(reply);
     }
 }
