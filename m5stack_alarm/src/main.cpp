@@ -51,7 +51,6 @@ void setup() {
   set_sideled_state(0,10, SIDELED_STATE_ON);
 }
 
-long nextSensorRead = 0;
 unsigned long next_lv_task = 0;
 //=====================================================================
 void loop()
