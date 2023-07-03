@@ -38,11 +38,36 @@ public class TelegramNotificationBot
       if (message.startsWith("/help")) {
         SendMessage reply = new SendMessage(update.message().chat().id(),
             """
+                Use /subscribe to get alarm activity updates.\040
+                Use /unsubscribe to stop getting alarm activity updates.\040
                 Use /alarm-shutdown to shutdown the alarm system.\040
                 Use /alarm-activate to activate the alarm system.\040
                 Use /alarm-activity to check if the alarm is active.
                 """);
         bot.execute(reply);
+      } else if(message.startsWith("/subscribe")) {
+        if(!users.contains(update.message().chat().id())) {
+          users.add(update.message().chat().id());
+          SendMessage reply = new SendMessage(update.message().chat().id(),
+              "Welcome! Use /unsubscribe to stop getting alarm activity updates.");
+          bot.execute(reply);
+        }else{
+          SendMessage reply = new SendMessage(update.message().chat().id(),
+              "You are already subscribed to the alarm activity updates!");
+          bot.execute(reply);
+        }
+      }
+      else if(message.startsWith("/unsubscribe")) {
+        if(users.contains(update.message().chat().id())) {
+          users.remove(update.message().chat().id());
+          SendMessage reply = new SendMessage(update.message().chat().id(),
+              "You will no longer receive alarm activity updates.");
+          bot.execute(reply);
+        }else{
+          SendMessage reply = new SendMessage(update.message().chat().id(),
+              "You cannot unsubscribe something you've never subscribed to.");
+          bot.execute(reply);
+        }
       }
       for (TelegramConsumerInterface consumer : consumers) {
         if (consumer.acceptsCommand(message)) {

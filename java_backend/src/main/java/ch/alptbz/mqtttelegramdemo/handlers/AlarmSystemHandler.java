@@ -16,12 +16,17 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
 
   private final String mqttRootTopic;
   private final String mqttActivityTopic;
+  private final String mqttTriggeredTopic;
   private boolean lastRegisteredActivityStatus;
-  private TelegramSenderInterface telegramSend;
+  private boolean lastRegisteredTriggeredStatus;
+  private final TelegramSenderInterface telegramSend;
 
   public AlarmSystemHandler(TelegramSenderInterface telegramSend) {
     this.mqttRootTopic = getConfig().getProperty("mqtt-root");
     this.mqttActivityTopic = getConfig().getProperty("mqtt-activity-topic");
+    this.mqttTriggeredTopic = getConfig().getProperty("mqtt-triggered-topic");
+    this.lastRegisteredTriggeredStatus = false;
+    this.lastRegisteredActivityStatus = false;
     this.telegramSend = telegramSend;
   }
 
@@ -46,7 +51,9 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
       }
       lastRegisteredActivityStatus = isActive;
     }
-
+    if (topic.endsWith(mqttTriggeredTopic)) {
+      lastRegisteredTriggeredStatus = Boolean.parseBoolean(messageStr);
+    }
   }
 
   @Override
@@ -57,15 +64,19 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
   @Override
   public void handleCommand(Update update, String message) {
     try {
-      if (message.startsWith("/alarm-shutdown")) {
+      if (lastRegisteredTriggeredStatus) {
+        telegramSend.sendReply(update,
+            "The alarm is currently being triggered, please resolve this issue before interacting with it further.");
+      }
+      else if (message.startsWith("/alarm-shutdown")) {
         telegramSend.sendReply(update, "initiating shutdown...");
         getMqttClient().publish(mqttRootTopic + mqttActivityTopic, "false");
       }
-      if (message.startsWith("/alarm-activate")) {
+      else if (message.startsWith("/alarm-activate")) {
         telegramSend.sendReply(update, "starting alarm...");
         getMqttClient().publish(mqttRootTopic + mqttActivityTopic, "true");
       }
-      if (message.startsWith("/alarm-activity")) {
+      else if (message.startsWith("/alarm-activity")) {
         telegramSend.sendReply(update,
             lastRegisteredActivityStatus ? "alarm is active" : "alarm is inactive");
       }
