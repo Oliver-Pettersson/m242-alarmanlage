@@ -2,7 +2,11 @@
 #include "view.h"
 #include "networking.h"
 #include "sideled.h"
-
+#include <Wire.h>
+#include <SPI.h>
+#include <PIR.h>
+#include <vector>
+#include "soundwav.h"
 
 void event_handler_num(struct _lv_obj_t * obj, lv_event_t event);
 void event_handler_ok(struct _lv_obj_t * obj, lv_event_t event);
@@ -11,8 +15,27 @@ void init_gui_elements();
 void mqtt_callback(char* topic, byte* payload, unsigned int length);
 
 unsigned long next_lv_task = 0;
+unsigned long next_sensor_read = 0;
 
+PIR sensor;
 lv_obj_t * led;
+
+// Audio
+Speaker speaker;
+unsigned long next_sound_play = 0;
+size_t sound_pos = 0;
+
+// Sensor state
+uint8_t last_state;
+uint8_t new_state;
+
+boolean alarm_state = false;
+boolean alarm_triggered = false;
+
+void init_sensor() {
+  Wire.begin();
+  sensor.add(36);
+}
 
 void init_gui_elements() {
   int c = 1;
@@ -34,34 +57,42 @@ void init_gui_elements() {
 // ----------------------------------------------------------------------------
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
-  if(String(topic) == "sasquatch/screenled") {
     char * buf = (char *)malloc((sizeof(char)*(length+1)));
     memcpy(buf, payload, length);
     buf[length] = '\0';
     String payloadS = String(buf);
     payloadS.trim();
-    Serial.println(payloadS);
+
+  if(String(topic) == "oliver-sascha-alarm/activity") {
+    if(payloadS == "true") {
+      alarm_state = true;
+      set_sideled_state(SIDELED_STATE_ACTIVE);
+    } else if(payloadS == "false") {
+      alarm_state = false;
+      set_sideled_state(SIDELED_STATE_OFF);
+    }
   }
 
-  if(String(topic) == "sasquatch/leds") {
-    Serial.println("entered!");
-    char * buf = (char *)malloc((sizeof(char)*(length+1)));
-    memcpy(buf, payload, length);
-    buf[length] = '\0';
-    String payloadI = String(buf);
-    payloadI.trim();
-    int colourCode = payloadI.toInt();
-    set_sideled_state(colourCode);
+  if(String(topic) == "oliver-sascha-alarm/triggered") {
+    if(payloadS == "true") {
+      alarm_triggered = true;
+      set_sideled_state(SIDELED_STATE_ALARM);
+    }
+    if(payloadS == "false") {
+      alarm_triggered = false;
+      set_sideled_state(alarm_state ? SIDELED_STATE_ACTIVE : SIDELED_STATE_OFF);
+    }
   }
 }
-
 
 // ----------------------------------------------------------------------------
 // UI event handlers
 // ----------------------------------------------------------------------------
 
 String buffer = "";
-String corectPW = "444";
+
+// PIN
+String PIN = "0";
 
 void event_handler_num(struct _lv_obj_t * obj, lv_event_t event) {
   if(event == LV_EVENT_CLICKED) {
@@ -78,8 +109,10 @@ void event_handler_box(struct _lv_obj_t * obj, lv_event_t event) {
   String textBtn = String(lv_msgbox_get_active_btn_text(obj));
   if(event == LV_EVENT_VALUE_CHANGED) {
     if(textBtn == "Send") {
-      //TODO(sascha):  Set topic here
-      mqtt_publish("sasquatch/numpad", buffer.c_str());
+      if(buffer == PIN) {
+        mqtt_publish("oliver-sascha-alarm/triggered", "false");
+        set_sideled_state(SIDELED_STATE_SUCCESS);
+      }
     }
     buffer = "";
     close_message_box(mbox);
@@ -88,8 +121,16 @@ void event_handler_box(struct _lv_obj_t * obj, lv_event_t event) {
 
 void event_handler_ok(struct _lv_obj_t * obj, lv_event_t event) {
   if(event == LV_EVENT_CLICKED) {
-    Serial.println(buffer);
     mbox = show_message_box(buffer.c_str(), "Send", "Cancel", event_handler_box);
+  }
+}
+
+void read_sensor() {
+  last_state = sensor.lastValue();
+  new_state = sensor.read();
+  //  change detected ?
+  if (new_state != last_state && new_state == 1) {
+    mqtt_publish("oliver-sascha-alarm/triggered", "true");
   }
 }
 
@@ -102,8 +143,22 @@ void loop() {
     lv_task_handler();
     next_lv_task = millis() + 5;
   }
-  
+
+  if(next_sensor_read< millis()) {
+    read_sensor();
+    next_sensor_read = millis() + 1000;
+  }
+
   mqtt_loop();
+
+  if (alarm_state && alarm_triggered && next_sound_play < millis()) {
+    size_t byteswritten = speaker.PlaySound(sounddata + sound_pos, NUM_ELEMENTS);
+    sound_pos = sound_pos + byteswritten;
+    if (sound_pos >= NUM_ELEMENTS) {
+      sound_pos = 0;
+    }
+    next_sound_play = millis() + 100;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -122,4 +177,6 @@ void setup() {
   close_message_box(wifiConnectingBox);
   init_gui_elements();
   init_sideled();
+  init_sensor();
+  set_sideled_state(SIDELED_STATE_OFF);
 }

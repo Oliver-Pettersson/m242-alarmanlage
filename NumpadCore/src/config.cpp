@@ -8,7 +8,7 @@ const char *  username = "";
 const char *  password = "";
 
 // WiFi configuration
-const char * ssid = "I3Tazzy 33";
-const char * passphrase = "12345678";
+const char * ssid = "LERNKUBE";
+const char * passphrase = "l3rnk4b3";
 
 #endif // BASE_H
