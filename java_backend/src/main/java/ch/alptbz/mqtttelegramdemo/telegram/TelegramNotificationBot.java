@@ -40,9 +40,11 @@ public class TelegramNotificationBot
             """
                 Use /subscribe to get alarm activity updates.\040
                 Use /unsubscribe to stop getting alarm activity updates.\040
+                Use /alarm-reset to reset the alarm.\040
                 Use /alarm-shutdown to shutdown the alarm system.\040
                 Use /alarm-activate to activate the alarm system.\040
-                Use /alarm-activity to check if the alarm is active.
+                Use /alarm-activity to check if the alarm is active.\040
+                Use /alarm-triggered to check if the sensor is detecting motion.
                 """);
         bot.execute(reply);
       } else if(message.startsWith("/subscribe")) {

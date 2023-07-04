@@ -37,7 +37,7 @@ void mqtt_re_connect() {
     Serial.println("Attempting MQTT connection...");
     if (client.connect(clientId)) {
       Serial.println("Connected");
-      client.subscribe("Sasquatch/+");
+      client.subscribe("oliver-sascha-alarm/+");
     } else {
       Serial.println("failed, rc=");
       Serial.println(client.state());

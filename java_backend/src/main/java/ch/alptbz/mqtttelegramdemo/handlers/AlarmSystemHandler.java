@@ -53,6 +53,11 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
     }
     if (topic.endsWith(mqttTriggeredTopic)) {
       lastRegisteredTriggeredStatus = Boolean.parseBoolean(messageStr);
+      if (lastRegisteredTriggeredStatus) {
+        telegramSend.sendToAllSubscribers("The alarm has been triggered");
+      } else {
+        telegramSend.sendToAllSubscribers("The alarm has been reset");
+      }
     }
   }
 
@@ -64,7 +69,18 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
   @Override
   public void handleCommand(Update update, String message) {
     try {
-      if (lastRegisteredTriggeredStatus) {
+      if (message.startsWith("/alarm-reset")) {
+        telegramSend.sendReply(update, "resetting alarm...");
+        getMqttClient().publish(mqttRootTopic + mqttTriggeredTopic, "false");
+      }
+      else if (message.startsWith("/alarm-triggered")) {
+        if (lastRegisteredTriggeredStatus) {
+          telegramSend.sendReply(update, "Sensor is detecting motion");
+        } else {
+          telegramSend.sendReply(update, "Sensor is not detecting motion");
+        }
+      }
+      else if (lastRegisteredTriggeredStatus) {
         telegramSend.sendReply(update,
             "The alarm is currently being triggered, please resolve this issue before interacting with it further.");
       }
