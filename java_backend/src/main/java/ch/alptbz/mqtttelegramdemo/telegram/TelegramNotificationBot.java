@@ -43,6 +43,7 @@ public class TelegramNotificationBot
                 Use /alarm-reset to reset the alarm.\040
                 Use /alarm-shutdown to shutdown the alarm system.\040
                 Use /alarm-activate to activate the alarm system.\040
+                Use /alarm-delayed-start {seconds} to activate after a number of seconds.\40
                 Use /alarm-activity to check if the alarm is active.\040
                 Use /alarm-triggered to check if the sensor is detecting motion.
                 """);

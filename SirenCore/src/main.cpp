@@ -8,6 +8,7 @@
 #include <PIR.h>
 #include <string.h>
 
+
 void event_handler_checkbox(struct _lv_obj_t *obj, lv_event_t event);
 void event_handler_button(struct _lv_obj_t *obj, lv_event_t event);
 void init_gui_elements();
@@ -104,7 +105,7 @@ void loop()
 
   mqtt_loop();
 
-  if (sound_enabled && alarm_triggered && next_sound_play < millis())
+  if (false && sound_enabled && alarm_triggered && next_sound_play < millis())
   {
     size_t byteswritten = speaker.PlaySound(sounddata + sound_pos, NUM_ELEMENTS);
 

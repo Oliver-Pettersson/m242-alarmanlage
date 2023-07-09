@@ -6,6 +6,7 @@ import static ch.alptbz.mqtttelegramdemo.singletons.MQTTClient.getMqttClient;
 
 import ch.alptbz.mqtttelegramdemo.handlers.AlarmSystemHandler;
 import ch.alptbz.mqtttelegramdemo.handlers.TemperatureHandler;
+import ch.alptbz.mqtttelegramdemo.logdata.LogDataRepository;
 import ch.alptbz.mqtttelegramdemo.mqtt.MqttConsumerInterface;
 import ch.alptbz.mqtttelegramdemo.scheduler.GlobalScheduler;
 import ch.alptbz.mqtttelegramdemo.scheduler.RecurringTaskInterface;
@@ -41,7 +42,6 @@ public class Main {
             getLogger().log(Level.SEVERE, "Failed to init handler", e);
         }
         getLogger().info("Initialization completed");
-
         while(true) {
             Thread.sleep(1000);
         }

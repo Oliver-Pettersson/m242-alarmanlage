@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/m242</property>
+        <property name="connection.username">stduser</property>
+        <property name="connection.password">pwd</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Validate the database schema on startup -->
+        <property name="hbm2ddl.auto">validate</property>
+
+        <!-- Names the annotated entity class -->
+        <mapping class="ch.alptbz.mqtttelegramdemo.logdata.LogData"/>
+    </session-factory>
+</hibernate-configuration>

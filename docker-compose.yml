@@ -1,0 +1,16 @@
+version: "3.9"
+    
+services:
+    userDB:
+        image: mysql
+        container_name: m242
+        volumes:
+            - ./mysql-data/:/var/lib/mysql
+        restart: on-failure
+        environment:
+            MYSQL_ROOT_PASSWORD: qwerasdf
+            MYSQL_DATABASE: m242
+            MYSQL_USER: stduser
+            MYSQL_PASSWORD: pwd
+        ports:
+          - "3306:3306"
