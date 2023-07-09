@@ -10,6 +10,7 @@
             "includePath": [
                 "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/include",
                 "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/src",
+                "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/PIR",
                 "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/FastLED/src",
                 "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/PubSubClient/src",
                 "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/lv_arduino/src",
@@ -246,6 +247,7 @@
                 "path": [
                     "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/include",
                     "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/src",
+                    "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/PIR",
                     "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/FastLED/src",
                     "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/PubSubClient/src",
                     "C:/Users/SaschaButhelezi/Desktop/M242/m242-alarmanlage/NumpadCore/.pio/libdeps/m5stack-core2/lv_arduino/src",

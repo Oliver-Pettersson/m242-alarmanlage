@@ -10,15 +10,14 @@ void LEDtask(void *arg){
     if(led_state == SIDELED_STATE_ALARM) {
       fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Red);
       FastLED.show();
-      delay(1000);
+      delay(500);
       fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Blue);
       FastLED.show();
-      delay(1000);
+      delay(500);
     }
     if(led_state == SIDELED_STATE_ACTIVE) {
-      fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Red);
+      fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Purple);
       FastLED.show();
-      delay(1000);
     }
     if(led_state == SIDELED_STATE_SUCCESS) {
       fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Green);
@@ -29,9 +28,6 @@ void LEDtask(void *arg){
     else if(led_state == SIDELED_STATE_OFF) {
       fill_solid(leds, SIDELED_NUM_LEDS, CRGB::Black);
       FastLED.show();
-      delay(1000);
-    }else{
-      delay(1000);
     }
   }
 }
@@ -42,6 +38,5 @@ void init_sideled() {
 }
 
 void set_sideled_state(int state) {
-    Serial.println(state);
     led_state = state;
 }
