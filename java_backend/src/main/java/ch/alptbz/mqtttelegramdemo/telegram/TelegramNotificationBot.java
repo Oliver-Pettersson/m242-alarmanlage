@@ -41,6 +41,7 @@ public class TelegramNotificationBot
                 Use /subscribe to get alarm activity updates.\040
                 Use /unsubscribe to stop getting alarm activity updates.\040
                 Use /alarm-reset to reset the alarm.\040
+                Use /alarm-logs to get the logs.\040
                 Use /alarm-shutdown to shutdown the alarm system.\040
                 Use /alarm-activate to activate the alarm system.\040
                 Use /alarm-delayed-start {seconds} to activate after a number of seconds.\40

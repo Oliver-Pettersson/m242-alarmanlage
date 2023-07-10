@@ -15,7 +15,7 @@
         <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
 
         <!-- Validate the database schema on startup -->
-        <property name="hbm2ddl.auto">validate</property>
+        <property name="hbm2ddl.auto">update</property>
 
         <!-- Names the annotated entity class -->
         <mapping class="ch.alptbz.mqtttelegramdemo.logdata.LogData"/>
