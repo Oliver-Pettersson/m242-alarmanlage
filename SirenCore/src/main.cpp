@@ -17,6 +17,10 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length);
 unsigned long next_lv_task = 0;
 unsigned long next_sensor_read = 0;
 
+unsigned long timer_start = 0; 
+unsigned long last_movement_time = 0;  // Time of the last movement detected
+bool movement_detected = false;        // Flag to indicate movement detection
+
 CRGB color;
 uint8_t state = SIDELED_STATE_OFF;
 uint8_t led_start = 0;
@@ -71,7 +75,21 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
   if (strcmp(topic, activity_topic) == 0)
   {
     sound_enabled = strcmp(payloadS.c_str(), "true") == 0;
-    set_sideled_state(sound_enabled ? SIDELED_STATE_ACTIVE : SIDELED_STATE_OFF);
+    if (sound_enabled) {
+      // check the last 10 seconds
+      if (millis() - last_movement_time <= 10000 && movement_detected) {
+        // Movement detected within the last 10 seconds, do not activate the alarm system
+        Serial.println("movement detected in the last 10 seconds");
+         mqtt_publish(activity_topic, "false");
+      } else {
+          // No movement detected within the last 10 seconds, activate the alarm system
+        Serial.println("Sensors are at Ready...");
+        movement_detected = false; // Reset flag
+        set_sideled_state(SIDELED_STATE_ACTIVE);
+      }
+    } else {
+      set_sideled_state(SIDELED_STATE_OFF);
+    }
   }
 }
 
@@ -83,10 +101,17 @@ void read_sensor()
 {
   last_state = sensor.lastValue();
   new_state = sensor.read();
-  if (new_state != last_state && new_state == 1) //  change detected?
+
+  if (new_state != last_state && new_state == 1) {
+    movement_detected = true;
+    last_movement_time = millis();
+  }
+
+  if (new_state != last_state && new_state == 1 && alarm_triggered) //  change detected?
   {
     mqtt_publish(triggered_topic, "true");
   }
+
 }
 
 void loop()

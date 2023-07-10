@@ -143,9 +143,6 @@ lv_obj_t * add_led(lv_coord_t x_ofs, lv_coord_t y_ofs, lv_coord_t w, lv_coord_t 
   lv_obj_set_width(led1, w);
   lv_obj_set_height(led1, h);
   lv_led_off(led1);
-
-  
-
   return led1;
 }
 

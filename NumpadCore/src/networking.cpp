@@ -36,6 +36,7 @@ void mqtt_re_connect() {
   while (!client.connected()) {
     Serial.println("Attempting MQTT connection...");
     if (client.connect(clientId)) {
+      Serial.println("Connected👍");
       client.subscribe("oliver-sascha-alarm/+");
     } else {
       Serial.println("failed, rc=");
