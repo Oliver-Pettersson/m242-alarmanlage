@@ -17,6 +17,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length);
 unsigned long next_lv_task = 0;
 unsigned long next_sensor_read = 0;
 
+unsigned long timer_start = 0; 
+unsigned long last_movement_time = 0;  // Time of the last movement detected
+bool movement_detected = false;        // Flag to indicate movement detection
+
 PIR sensor;
 lv_obj_t * led;
 
@@ -51,6 +55,14 @@ void init_gui_elements() {
   led = add_led(260, 100, 30, 30);
 }
 
+void activate_LED() {
+  lv_led_on(led);                            // Turn the LED ON
+  lv_led_set_bright(led, LV_LED_BRIGHT_MAX); // Set the LED brightness to the maximum value
+}
+
+void deactivate_LED() {
+  lv_led_off(led);
+}
 
 // ----------------------------------------------------------------------------
 // MQTT callback
@@ -65,10 +77,22 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   if(String(topic) == "oliver-sascha-alarm/activity") {
     if(payloadS == "true") {
-      alarm_state = true;
-      set_sideled_state(SIDELED_STATE_ACTIVE);
+      // check the last 10 seconds
+      if (millis() - last_movement_time <= 10000 && movement_detected) {
+        // Movement detected within the last 10 seconds, do not activate the alarm system
+        Serial.println("movement detected in the last 5 seconds");
+         mqtt_publish("oliver-sascha-alarm/activity", "false");
+      } else {
+          // No movement detected within the last 10 seconds, activate the alarm system
+        Serial.println("Sensors are at Ready...");
+        alarm_state = true;
+        movement_detected = false;   // Reset flag
+        activate_LED();
+        set_sideled_state(SIDELED_STATE_ACTIVE);
+      }
     } else if(payloadS == "false") {
       alarm_state = false;
+      deactivate_LED();
       set_sideled_state(SIDELED_STATE_OFF);
     }
   }
@@ -76,6 +100,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   if(String(topic) == "oliver-sascha-alarm/triggered") {
     if(payloadS == "true") {
       alarm_triggered = true;
+      deactivate_LED();
       set_sideled_state(SIDELED_STATE_ALARM);
     }
     if(payloadS == "false") {
@@ -111,6 +136,7 @@ void event_handler_box(struct _lv_obj_t * obj, lv_event_t event) {
     if(textBtn == "Send") {
       if(buffer == PIN) {
         mqtt_publish("oliver-sascha-alarm/triggered", "false");
+        mqtt_publish("oliver-sascha-alarm/activity", "false");
         set_sideled_state(SIDELED_STATE_SUCCESS);
       }
     }
@@ -126,10 +152,16 @@ void event_handler_ok(struct _lv_obj_t * obj, lv_event_t event) {
 }
 
 void read_sensor() {
+  // check for 5 sec
   last_state = sensor.lastValue();
   new_state = sensor.read();
-  //  change detected ?
+
   if (new_state != last_state && new_state == 1) {
+    movement_detected = true;
+    last_movement_time = millis();
+  }
+
+  if (new_state != last_state && new_state == 1 && alarm_state) {
     mqtt_publish("oliver-sascha-alarm/triggered", "true");
   }
 }
@@ -144,13 +176,14 @@ void loop() {
     next_lv_task = millis() + 5;
   }
 
-  if(next_sensor_read< millis()) {
+  if(next_sensor_read < millis()) {
     read_sensor();
     next_sensor_read = millis() + 1000;
   }
 
   mqtt_loop();
 
+  /*
   if (alarm_state && alarm_triggered && next_sound_play < millis()) {
     size_t byteswritten = speaker.PlaySound(sounddata + sound_pos, NUM_ELEMENTS);
     sound_pos = sound_pos + byteswritten;
@@ -159,6 +192,7 @@ void loop() {
     }
     next_sound_play = millis() + 100;
   }
+  */
 }
 
 // ----------------------------------------------------------------------------
@@ -179,4 +213,8 @@ void setup() {
   init_sideled();
   init_sensor();
   set_sideled_state(SIDELED_STATE_OFF);
+
+  // init timers
+  timer_start = millis();
+  last_movement_time = millis();
 }
