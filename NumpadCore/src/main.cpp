@@ -142,7 +142,7 @@ void read_sensor() {
   last_state = sensor.lastValue();
   new_state = sensor.read();
 
-  if (new_state != last_state && new_state == 1 && alarm_state) {
+  if (new_state != last_state && new_state == 1) {
     mqtt_publish("oliver-sascha-alarm/triggered", "true");
   }
 }
