@@ -162,4 +162,8 @@ void setup()
   init_sideled();
   init_sensor();
   set_sideled_state(SIDELED_STATE_OFF);
+
+  // init timers
+  timer_start = millis();
+  last_movement_time = millis();
 }
