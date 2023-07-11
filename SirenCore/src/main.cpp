@@ -83,7 +83,7 @@ void read_sensor()
   last_state = sensor.lastValue();
   new_state = sensor.read();
 
-  if (new_state != last_state && new_state == 1 && sound_enabled) //  change detected?
+  if (new_state != last_state && new_state == 1) //  change detected?
   {
     mqtt_publish(triggered_topic, "true");
   }
