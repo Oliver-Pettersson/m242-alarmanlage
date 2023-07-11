@@ -138,11 +138,10 @@ void event_handler_ok(struct _lv_obj_t * obj, lv_event_t event) {
 }
 
 void read_sensor() {
-  // check for 5 sec
   last_state = sensor.lastValue();
   new_state = sensor.read();
 
-  if (new_state != last_state && new_state == 1 && alarm_state) {
+  if (new_state != last_state && new_state == 1) {
     mqtt_publish("oliver-sascha-alarm/triggered", "true");
   }
 }
@@ -164,7 +163,6 @@ void loop() {
 
   mqtt_loop();
 
-  /*
   if (alarm_state && alarm_triggered && next_sound_play < millis()) {
     size_t byteswritten = speaker.PlaySound(sounddata + sound_pos, NUM_ELEMENTS);
     sound_pos = sound_pos + byteswritten;
@@ -173,7 +171,6 @@ void loop() {
     }
     next_sound_play = millis() + 100;
   }
-  */
 }
 
 // ----------------------------------------------------------------------------
