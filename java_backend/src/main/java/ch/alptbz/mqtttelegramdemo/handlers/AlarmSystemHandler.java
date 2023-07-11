@@ -11,6 +11,8 @@ import ch.alptbz.mqtttelegramdemo.telegram.TelegramConsumerInterface;
 import ch.alptbz.mqtttelegramdemo.telegram.TelegramSenderInterface;
 import com.pengrad.telegrambot.model.Update;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +97,9 @@ public class AlarmSystemHandler implements MqttConsumerInterface, TelegramConsum
         }
       } else if (message.startsWith("/alarm-logs")) {
         StringBuilder msg = new StringBuilder();
-        for (LogData logData : LogDataRepository.getRepository().getLogs()) {
+        List<LogData> logDataList = LogDataRepository.getRepository().getLogs().stream()
+            .sorted(Comparator.comparing(LogData::getDateTime)).toList();
+        for (LogData logData : logDataList) {
           LocalDateTime dateTime = logData.getDateTime();
           msg.append(dateTime.getYear())
               .append("-")

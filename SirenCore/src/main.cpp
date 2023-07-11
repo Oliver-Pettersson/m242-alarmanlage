@@ -105,7 +105,7 @@ void loop()
 
   mqtt_loop();
 
-  if (false && sound_enabled && alarm_triggered && next_sound_play < millis())
+  if (sound_enabled && alarm_triggered && next_sound_play < millis())
   {
     size_t byteswritten = speaker.PlaySound(sounddata + sound_pos, NUM_ELEMENTS);
 
