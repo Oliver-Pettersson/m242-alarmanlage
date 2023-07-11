@@ -17,10 +17,6 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length);
 unsigned long next_lv_task = 0;
 unsigned long next_sensor_read = 0;
 
-unsigned long timer_start = 0; 
-unsigned long last_movement_time = 0;  // Time of the last movement detected
-bool movement_detected = false;        // Flag to indicate movement detection
-
 PIR sensor;
 lv_obj_t * led;
 
@@ -77,19 +73,9 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   if(String(topic) == "oliver-sascha-alarm/activity") {
     if(payloadS == "true") {
-      // check the last 10 seconds
-      if (millis() - last_movement_time <= 10000 && movement_detected) {
-        // Movement detected within the last 10 seconds, do not activate the alarm system
-        Serial.println("movement detected in the last 5 seconds");
-         mqtt_publish("oliver-sascha-alarm/activity", "false");
-      } else {
-          // No movement detected within the last 10 seconds, activate the alarm system
-        Serial.println("Sensors are at Ready...");
-        alarm_state = true;
-        movement_detected = false;   // Reset flag
-        activate_LED();
-        set_sideled_state(SIDELED_STATE_ACTIVE);
-      }
+      alarm_state = true;
+      activate_LED();
+      set_sideled_state(SIDELED_STATE_ACTIVE);
     } else if(payloadS == "false") {
       alarm_state = false;
       deactivate_LED();
@@ -156,11 +142,6 @@ void read_sensor() {
   last_state = sensor.lastValue();
   new_state = sensor.read();
 
-  if (new_state != last_state && new_state == 1) {
-    movement_detected = true;
-    last_movement_time = millis();
-  }
-
   if (new_state != last_state && new_state == 1 && alarm_state) {
     mqtt_publish("oliver-sascha-alarm/triggered", "true");
   }
@@ -213,8 +194,4 @@ void setup() {
   init_sideled();
   init_sensor();
   set_sideled_state(SIDELED_STATE_OFF);
-
-  // init timers
-  timer_start = millis();
-  last_movement_time = millis();
 }
