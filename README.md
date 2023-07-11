@@ -26,7 +26,11 @@ docker-compose up -d
 ## Telegram Bot
 Der Telegrambot muss auf Telegramm geadded werden durch die Suchleiste mit dem Namen @SchnawgBot
 ### Befehle
-Der Telegram Bot hat verschiedene Befehle, welche durch den Befehl /help einsehbar sind.
+Der Telegram Bot hat verschiedene Befehle, welche durch den Befehl 
+```bash
+/help
+```
+einsehbar sind.
 
 ## Numpad
 Wenn der Alarm losgeht kann der Alarm ausgeschaltet werden indem man das Numpad verwendet und den richtigen Code eingibt. Momentan haben wir den Code als "0" konfiguriert.
